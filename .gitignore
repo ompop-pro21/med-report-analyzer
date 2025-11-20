@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# Environment Variables
+.env
+
+# Database
+instance/
+*.sqlite3
+*.db
+
+# Uploads
+app/static/uploads/
+
+# Tailwind
+tailwindcss.exe
+
+# OS
+.DS_Store
+Thumbs.db

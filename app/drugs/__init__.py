@@ -1,0 +1,1 @@
+from app.drugs.routes import drugs_bp

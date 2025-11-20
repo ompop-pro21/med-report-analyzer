@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Report Analyzer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 20px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}?v=2">
+</head>
+<body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
+    <nav class="bg-white border-b border-gray-200 px-4 py-2.5 shadow-sm sticky top-0 z-50">
+        <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+            <a href="{{ url_for('main.index') }}" class="flex items-center transition-transform duration-200 hover:scale-105">
+                <span class="self-center text-xl font-semibold whitespace-nowrap text-medical-900">MedAnalyzer</span>
+            </a>
+            <div class="flex items-center lg:order-2">
+                <a href="{{ url_for('drugs.search') }}" class="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 focus:outline-none transition-all duration-200 ease-in-out transform hover:-translate-y-0.5">Drug Lookup</a>
+                <a href="{{ url_for('analysis.upload') }}" class="text-white bg-medical-600 hover:bg-medical-500 focus:ring-4 focus:ring-medical-100 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg active:scale-95">Analyze Report</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="p-4 bg-white md:p-8 lg:p-10 border-t border-gray-200 mt-auto">
+        <div class="mx-auto max-w-screen-xl text-center">
+            <p class="mb-4 text-sm text-gray-500 sm:mb-0">© 2025 Medical Report Analyzer. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

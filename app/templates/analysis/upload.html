@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto animate-fade-in-up">
+    <h2 class="text-3xl font-bold mb-6 text-medical-900 text-center">Upload Medical Report</h2>
+    
+    <div class="bg-white p-4 md:p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {{ form.hidden_tag() }}
+            
+            <div class="flex items-center justify-center w-full">
+                <label for="file" class="dropzone flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all duration-300 ease-in-out transform hover:scale-[1.01]">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6" id="dropzone-content">
+                        <svg class="w-10 h-10 mb-4 text-medical-500 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                        </svg>
+                        <p class="mb-2 text-sm text-gray-500"><span class="font-semibold text-medical-600">Click to upload</span> or drag and drop</p>
+                        <p class="text-xs text-gray-500">PDF, PNG, JPG or JPEG</p>
+                    </div>
+                    <div id="preview-container" class="hidden w-full h-full flex items-center justify-center p-4">
+                        <img id="image-preview" class="max-h-full max-w-full object-contain rounded shadow-sm hidden" alt="Preview" />
+                        <div id="pdf-preview" class="hidden flex flex-col items-center text-medical-700">
+                            <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span class="font-semibold text-sm" id="pdf-name"></span>
+                        </div>
+                    </div>
+                    {{ form.file(class="hidden") }}
+                </label>
+            </div>
+            {% for error in form.file.errors %}
+            <p class="text-red-500 text-xs italic">{{ error }}</p>
+            {% endfor %}
+
+            <button type="submit" id="submit-btn" class="w-full text-white bg-medical-600 hover:bg-medical-500 focus:ring-4 focus:outline-none focus:ring-medical-100 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg active:scale-95 flex items-center justify-center">
+                <span id="btn-text" class="font-bold text-base">Analyze Report</span>
+                <svg id="loading-spinner" class="hidden w-5 h-5 ml-2 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('file');
+    const dropzone = document.querySelector('.dropzone');
+    const dropzoneContent = document.getElementById('dropzone-content');
+    const previewContainer = document.getElementById('preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const pdfPreview = document.getElementById('pdf-preview');
+    const pdfName = document.getElementById('pdf-name');
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        handleFiles(this.files);
+    });
+
+    // Drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        dropzone.classList.add('border-medical-500', 'bg-medical-50');
+    }
+
+    function unhighlight(e) {
+        dropzone.classList.remove('border-medical-500', 'bg-medical-50');
+    }
+
+    dropzone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files; // Update input files
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        if (files && files[0]) {
+            const file = files[0];
+            
+            // Change dropzone style to indicate success
+            dropzone.classList.remove('border-gray-300', 'bg-gray-50');
+            dropzone.classList.add('border-green-500', 'bg-green-50');
+            
+            // Hide default content
+            dropzoneContent.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+
+            // Show preview based on file type
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    pdfPreview.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                imagePreview.classList.add('hidden');
+                pdfPreview.classList.remove('hidden');
+                pdfName.textContent = file.name;
+            }
+        }
+    }
+
+    // Handle form submission loading state
+    form.addEventListener('submit', function() {
+        if (fileInput.files.length > 0) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('cursor-not-allowed', 'opacity-75');
+            btnText.textContent = 'Analyzing...';
+            loadingSpinner.classList.remove('hidden');
+        }
+    });
+</script>
+{% endblock %}

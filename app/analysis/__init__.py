@@ -1,0 +1,1 @@
+from app.analysis.routes import analysis_bp
